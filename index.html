@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>200 Hours Skill Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+            padding: 40px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: transparent;
+        }
+
+        /* Dark mode toggle */
+        .dark-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: 1px solid #000000;
+            color: #000000;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        .dark .dark-toggle {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .dark-toggle:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .dark .dark-toggle:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        /* Header */
+        .header {
+            text-align: left;
+            margin-bottom: 60px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: normal;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666666;
+            font-weight: normal;
+        }
+
+        .dark .subtitle {
+            color: #999999;
+        }
+
+        .skill-input {
+            font-size: 18px;
+            font-weight: normal;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #000000;
+            outline: none;
+            padding: 8px 0;
+            margin: 20px 0;
+            width: 300px;
+            text-transform: lowercase;
+        }
+
+        .dark .skill-input {
+            border-bottom-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .skill-input::placeholder {
+            color: #999999;
+        }
+
+        /* Stats */
+        .stats {
+            margin: 40px 0;
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            font-size: 16px;
+        }
+
+        .stat-number {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .stat-label {
+            color: #666666;
+        }
+
+        .dark .stat-label {
+            color: #999999;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            margin: 40px 0;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 2px;
+            background-color: #e0e0e0;
+        }
+
+        .dark .progress-bar-bg {
+            background-color: #333333;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #000000;
+            transition: width 0.5s ease;
+        }
+
+        .dark .progress-bar {
+            background-color: #ffffff;
+        }
+
+        /* Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(12px, 1fr));
+            gap: 4px;
+            margin: 40px 0;
+            max-width: 600px;
+        }
+
+        .hour-dot {
+            width: 12px;
+            height: 12px;
+            border: 1px solid #cccccc;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dark .hour-dot {
+            border-color: #666666;
+        }
+
+        .hour-dot:hover {
+            background: #f0f0f0;
+        }
+
+        .dark .hour-dot:hover {
+            background: #333333;
+        }
+
+        .hour-dot.filled {
+            background: #000000;
+            border-color: #000000;
+        }
+
+        .dark .hour-dot.filled {
+            background: #ffffff;
+            border-color: #ffffff;
+        }
+
+        /* Timer section */
+        .timer-section {
+            margin: 60px 0;
+            padding: 40px 0;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .dark .timer-section {
+            border-color: #333333;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: normal;
+            margin-bottom: 20px;
+            font-family: "Courier New", monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #000000;
+            color: #000000;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            text-transform: lowercase;
+        }
+
+        .dark .btn {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .btn:hover {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .dark .btn:hover {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background: transparent;
+            color: #000000;
+        }
+
+        .dark .btn:disabled:hover {
+            background: transparent;
+            color: #ffffff;
+        }
+
+        /* Info section */
+        .info-section {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .dark .info-section {
+            border-color: #333333;
+        }
+
+        .info-item {
+            margin-bottom: 40px;
+        }
+
+        .info-title {
+            font-size: 18px;
+            font-weight: normal;
+            margin-bottom: 10px;
+            text-transform: lowercase;
+        }
+
+        .info-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #666666;
+            max-width: 600px;
+        }
+
+        .dark .info-text {
+            color: #999999;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats {
+                gap: clamp(20px, 5vw, 30px);
+            }
+
+            .timer-controls {
+                gap: clamp(15px, 3vw, 20px);
+                justify-content: center;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(clamp(14px, 2.5vw, 18px), 1fr));
+                gap: clamp(4px, 1vw, 8px);
+                padding: clamp(15px, 3vw, 25px);
+            }
+
+            .hour-dot {
+                width: clamp(14px, 2.5vw, 18px);
+                height: clamp(14px, 2.5vw, 18px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                flex-direction: column;
+                gap: clamp(15px, 4vw, 25px);
+            }
+
+            .timer-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                text-align: center;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1400px;
+            }
+
+            .grid-container {
+                max-width: 1200px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="dark-toggle" id="darkToggle">dark</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">200 hours skill tracker</div>
+            <div class="subtitle">track your journey to mastery</div>
+            <input type="text" class="skill-input" id="skillInput" placeholder="guitar">
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="completedHours">0</span>
+                <span class="stat-label">hours completed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="progressPercent">0%</span>
+                <span class="stat-label">progress</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="remainingHours">200</span>
+                <span class="stat-label">hours remaining</span>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="grid-container" id="gridContainer">
+            <!-- Dots will be generated by JavaScript -->
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-controls">
+                <button class="btn" id="startBtn">start timer</button>
+                <button class="btn" id="resetBtn">reset</button>
+                <button class="btn" id="completeBtn" disabled>complete hour</button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-item">
+                <div class="info-title">about this tracker</div>
+                <div class="info-text">
+                    research suggests that 200 hours of deliberate practice can help you surpass 
+                    the top 20% of practitioners in most skills. each dot represents one hour of 
+                    focused practice. use the timer to ensure you complete full hour sessions 
+                    before marking your progress.
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-title">how it works</div>
+                <div class="info-text">
+                    start the timer when you begin practicing. after completing one full hour 
+                    (3600 seconds), the "complete hour" button will become available. click it 
+                    to mark that hour as completed and fill in the next dot. consistency is 
+                    key to building mastery.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let skillName = 'guitar';
+        let completedHours = 0;
+        let seconds = 0;
+        let timerRunning = false;
+        let timerInterval = null;
+        let isDarkMode = false;
+
+        // Elements
+        const darkToggle = document.getElementById('darkToggle');
+        const skillInput = document.getElementById('skillInput');
+        const completedHoursEl = document.getElementById('completedHours');
+        const progressPercentEl = document.getElementById('progressPercent');
+        const remainingHoursEl = document.getElementById('remainingHours');
+        const progressBar = document.getElementById('progressBar');
+        const gridContainer = document.getElementById('gridContainer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const completeBtn = document.getElementById('completeBtn');
+
+        // Initialize
+        function init() {
+            createGrid();
+            updateUI();
+            bindEvents();
+        }
+
+        // Create grid of 200 dots
+        function createGrid() {
+            for (let i = 0; i < 200; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'hour-dot';
+                dot.title = `hour ${i + 1}`;
+                gridContainer.appendChild(dot);
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            skillInput.value = skillName;
+            completedHoursEl.textContent = completedHours;
+            progressPercentEl.textContent = Math.round((completedHours / 200) * 100) + '%';
+            remainingHoursEl.textContent = 200 - completedHours;
+            progressBar.style.width = (completedHours / 200) * 100 + '%';
+
+            // Update dots
+            const dots = document.querySelectorAll('.hour-dot');
+            dots.forEach((dot, index) => {
+                if (index < completedHours) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            });
+        }
+
+        // Timer functions
+        function formatTime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (timerRunning) {
+                // Stop timer
+                clearInterval(timerInterval);
+                timerRunning = false;
+                startBtn.textContent = 'start timer';
+            } else {
+                // Start timer
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    timerDisplay.textContent = formatTime(seconds);
+                    
+                    // Enable complete button after 1 hour
+                    if (seconds >= 3600) {
+                        completeBtn.disabled = false;
+                    }
+                }, 1000);
+                timerRunning = true;
+                startBtn.textContent = 'stop timer';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            seconds = 0;
+            timerDisplay.textContent = formatTime(seconds);
+            startBtn.textContent = 'start timer';
+            completeBtn.disabled = true;
+        }
+
+        function completeHour() {
+            if (seconds >= 3600 && completedHours < 200) {
+                completedHours++;
+                resetTimer();
+                updateUI();
+
+                // Celebrate milestones
+                if (completedHours === 200) {
+                    alert('congratulations! you have completed 200 hours and achieved mastery in ' + skillName + '!');
+                } else if (completedHours % 50 === 0) {
+                    alert('milestone reached: ' + completedHours + ' hours completed!');
+                }
+            }
+        }
+
+        // Dark mode
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                darkToggle.textContent = 'light';
+            } else {
+                document.documentElement.classList.remove('dark');
+                darkToggle.textContent = 'dark';
+            }
+        }
+
+        // Event listeners
+        function bindEvents() {
+            darkToggle.addEventListener('click', toggleDarkMode);
+            skillInput.addEventListener('input', (e) => {
+                skillName = e.target.value.toUpperCase();
+            });
+            startBtn.addEventListener('click', startTimer);
+            resetBtn.addEventListener('click', resetTimer);
+            completeBtn.addEventListener('click', completeHour);
+        }
+
+        // Start app
+        init();
+    </script>
+</body>
+</html>
